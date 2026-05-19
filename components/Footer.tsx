@@ -88,11 +88,14 @@ export default function Footer() {
               Building smart digital solutions for Nepal. Web apps, mobile apps, and custom software that drive real results.
             </p>
             <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-              <a href="mailto:info@techprocod.com" className="footer-contact-link">
-                <Mail size={14} /> info@techprocod.com
+              <a href="mailto:info@techprocod.com.np" className="footer-contact-link">
+                <Mail size={14} /> info@techprocod.com.np
               </a>
-              <a href="tel:+9779800000000" className="footer-contact-link">
-                <Phone size={14} /> +977-9800000000
+              <a href="mailto:support@techprocod.com.np" className="footer-contact-link">
+                <Mail size={14} /> support@techprocod.com.np
+              </a>
+              <a href="tel:+9779705492297" className="footer-contact-link">
+                <Phone size={14} /> +977-9705492297
               </a>
               <span className="footer-contact-link" style={{ cursor: "default" }}>
                 <MapPin size={14} /> Siraha, Madhesh Pradesh, Nepal

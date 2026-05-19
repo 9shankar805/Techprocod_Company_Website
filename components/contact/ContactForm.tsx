@@ -12,9 +12,10 @@ const WhatsAppIcon = () => (
 );
 
 const contactInfo = [
-  { icon: Mail, label: "Email", value: "info@techprocod.com", href: "mailto:info@techprocod.com" },
-  { icon: Phone, label: "Phone", value: "+977-9800000000", href: "tel:+9779800000000" },
-  { icon: WhatsAppIcon, label: "WhatsApp", value: "+977-9800000000", href: "https://wa.me/9779800000000" },
+  { icon: Mail, label: "Info Email", value: "info@techprocod.com.np", href: "mailto:info@techprocod.com.np" },
+  { icon: Mail, label: "Support Email", value: "support@techprocod.com.np", href: "mailto:support@techprocod.com.np" },
+  { icon: Phone, label: "Phone", value: "+977-9705492297", href: "tel:+9779705492297" },
+  { icon: WhatsAppIcon, label: "WhatsApp", value: "+977-9705492297", href: "https://wa.me/9779705492297" },
   { icon: MapPin, label: "Address", value: "Siraha, Madhesh Pradesh, Nepal", href: "#" },
 ];
 

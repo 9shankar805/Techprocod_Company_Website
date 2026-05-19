@@ -5,7 +5,7 @@ import ContactForm from "@/components/contact/ContactForm";
 export const metadata: Metadata = {
   title: "Contact Tech Procod | Get a Free Quote | Nepal",
   description:
-    "Contact Tech Procod Pvt Ltd for a free consultation and project quote. Web development, mobile apps, e-commerce, and custom software. Call +977-9800000000 or email info@techprocod.com.",
+    "Contact Tech Procod Pvt Ltd for a free consultation and project quote. Web development, mobile apps, e-commerce, and custom software. Call +977-9705492297 or email info@techprocod.com.np.",
   keywords: [
     "contact Tech Procod",
     "get a quote",
