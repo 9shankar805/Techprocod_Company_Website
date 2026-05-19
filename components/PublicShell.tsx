@@ -18,7 +18,6 @@ export default function PublicShell({ children }: { children: React.ReactNode })
       <Navbar />
       <main>{children}</main>
       <Footer />
-      <FloatingContact />
       <CookieConsent />
       <BackToTop />
       <Chatbot />

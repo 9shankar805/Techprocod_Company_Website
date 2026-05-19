@@ -37,11 +37,9 @@ export default function Chatbot() {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
-  const handleSuggestion = (text: string) => {
-    setInput(text);
-    // Automatically send if we want
-    // send({ preventDefault: () => {} } as React.FormEvent);
-  };
+  useEffect(() => {
+    bottomRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages]);
 
   const saveToRtdb = async (text: string, sender: "user" | "bot") => {
     try {
@@ -58,41 +56,49 @@ export default function Chatbot() {
     }
   };
 
-  const send = async (e: React.FormEvent) => {
-    e.preventDefault();
-    const text = input.trim();
-    if (!text) return;
+  const send = async (e: React.FormEvent | null, customText?: string) => {
+    if (e) e.preventDefault();
+    const text = (customText || input).trim();
+    if (!text || loading) return;
 
     const userMsg: Message = { id: Date.now().toString(), text, sender: "user" };
-    setMessages((prev) => [...prev, userMsg]);
+    const updatedMessages = [...messages, userMsg];
+    setMessages(updatedMessages);
     setInput("");
     setLoading(true);
 
-    await saveToRtdb(text, "user");
+    // Build history for Gemini (exclude the initial bot greeting)
+    const history = updatedMessages
+      .slice(1) // skip initial greeting
+      .slice(0, -1) // exclude the message we just sent (sent separately)
+      .map((m) => ({ role: m.sender === "user" ? "user" : "model", text: m.text }));
 
     try {
       const res = await fetch("/api/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ message: text }),
+        body: JSON.stringify({ message: text, history }),
       });
       const data = await res.json();
       const reply = data.reply || "Sorry, something went wrong.";
-      setMessages((prev) => [
-        ...prev,
-        { id: (Date.now() + 1).toString(), text: reply, sender: "bot" },
-      ]);
-      await saveToRtdb(reply, "bot");
+      const botMsg: Message = { id: (Date.now() + 1).toString(), text: reply, sender: "bot" };
+      setMessages((prev) => [...prev, botMsg]);
+      saveToRtdb(text, "user");
+      saveToRtdb(reply, "bot");
     } catch {
       const errMsg = "Sorry, I couldn't connect. Please try again.";
       setMessages((prev) => [
         ...prev,
         { id: (Date.now() + 1).toString(), text: errMsg, sender: "bot" },
       ]);
-      await saveToRtdb(errMsg, "bot");
+      saveToRtdb(errMsg, "bot");
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleSuggestion = (text: string) => {
+    send(null, text);
   };
 
   return (
