@@ -115,8 +115,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               contactPoint: {
                 "@type": "ContactPoint",
                 contactType: "Customer Service",
-                telephone: "+977-9800000000",
-                email: "info@techprocod.com",
+                telephone: "+977-9705492297",
+                email: "info@techprocod.com.np",
               },
               sameAs: [
                 "https://www.facebook.com/techprocod",
@@ -154,8 +154,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                 postalCode: "12345",
                 addressCountry: "NP",
               },
-              telephone: "+977-9800000000",
-              email: "info@techprocod.com",
+              telephone: "+977-9705492297",
+              email: "info@techprocod.com.np",
               url: "https://techprocod.com",
               priceRange: "$$",
               areaServed: "NP",

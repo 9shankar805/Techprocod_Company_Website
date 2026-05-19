@@ -37,18 +37,23 @@ export default function AdminDashboardClient({
 
   useEffect(() => {
     // Live chat sessions
-    const sessRef = ref(rtdb, "chatSessions");
-    const handler = onValue(sessRef, snap => {
-      const count = snap.exists() ? Object.keys(snap.val()).length : 0;
-      setActiveSessions(count);
-      if (count > 0) {
-        setNotifications(prev => {
-          const exists = prev.find(n => n.id === "chat");
-          if (exists) return prev;
-          return [{ id: "chat", text: `${count} active chat session${count > 1 ? "s" : ""}`, time: "now", read: false }, ...prev];
-        });
-      }
-    });
+    let sessRef: any = null;
+    let handler: any = null;
+
+    if (rtdb) {
+      sessRef = ref(rtdb, "chatSessions");
+      handler = onValue(sessRef, snap => {
+        const count = snap.exists() ? Object.keys(snap.val()).length : 0;
+        setActiveSessions(count);
+        if (count > 0) {
+          setNotifications(prev => {
+            const exists = prev.find(n => n.id === "chat");
+            if (exists) return prev;
+            return [{ id: "chat", text: `${count} active chat session${count > 1 ? "s" : ""}`, time: "now", read: false }, ...prev];
+          });
+        }
+      });
+    }
 
     // Audit log
     fetch("/api/admin/audit").then(r => r.json()).then(d => {
@@ -93,7 +98,9 @@ export default function AdminDashboardClient({
       ]);
     }).catch(() => {});
 
-    return () => off(sessRef, "value", handler);
+    return () => {
+      if (sessRef && handler) off(sessRef, "value", handler);
+    };
   }, []);
 
   const unreadCount = notifications.filter(n => !n.read).length;

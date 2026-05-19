@@ -24,6 +24,7 @@ if (!getApps().length) {
     // We initialize a placeholder or handle it lazily to avoid crashing the build.
     app = initializeApp({
       projectId: "placeholder-project-id", // Minimal config to avoid crash
+      databaseURL: "https://placeholder-project-id.firebaseio.com", // Add placeholder URL
     }, "placeholder-app");
   }
 } else {
@@ -33,5 +34,11 @@ if (!getApps().length) {
 // Firestore — persistent structured data
 export const adminDb = getFirestore(app);
 
-// Realtime Database — live/ephemeral data
-export const adminRtdb = getDatabase(app);
+/**
+ * Realtime Database — live/ephemeral data
+ * We export a getter or handle it lazily because getDatabase(app) 
+ * will throw if databaseURL is missing.
+ */
+export const adminRtdb = process.env.NEXT_PUBLIC_FIREBASE_DATABASE_URL || !hasConfig
+  ? getDatabase(app)
+  : null;

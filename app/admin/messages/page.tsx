@@ -28,16 +28,24 @@ export default function MessagesPage() {
   const bottomRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    const msgRef = ref(rtdb, "teamMessages");
-    const handler = onValue(msgRef, snap => {
-      if (!snap.exists()) { setMessages([]); return; }
-      const msgs: Message[] = [];
-      snap.forEach(child => {
-        msgs.push({ id: child.key!, ...child.val() });
+    let msgRef: any = null;
+    let handler: any = null;
+
+    if (rtdb) {
+      msgRef = ref(rtdb, "teamMessages");
+      handler = onValue(msgRef, snap => {
+        if (!snap.exists()) { setMessages([]); return; }
+        const msgs: Message[] = [];
+        snap.forEach(child => {
+          msgs.push({ id: child.key!, ...child.val() });
+        });
+        setMessages(msgs.sort((a, b) => a.timestamp - b.timestamp));
       });
-      setMessages(msgs.sort((a, b) => a.timestamp - b.timestamp));
-    });
-    return () => off(msgRef, "value", handler);
+    }
+
+    return () => {
+      if (msgRef && handler) off(msgRef, "value", handler);
+    };
   }, []);
 
   useEffect(() => {
@@ -57,6 +65,7 @@ export default function MessagesPage() {
   };
 
   const deleteMsg = async (id: string) => {
+    if (!rtdb) return;
     await remove(ref(rtdb, `teamMessages/${id}`));
   };
 

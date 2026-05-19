@@ -19,4 +19,4 @@ const app = getApps().length ? getApps()[0] : initializeApp(firebaseConfig);
 export const db = getFirestore(app);
 
 // Realtime Database — live/ephemeral data (chat sessions, live counters)
-export const rtdb = getDatabase(app);
+export const rtdb = firebaseConfig.databaseURL ? getDatabase(app) : null;

@@ -42,6 +42,7 @@ export default function Chatbot() {
   }, [messages]);
 
   const saveToRtdb = async (text: string, sender: "user" | "bot") => {
+    if (!rtdb) return;
     try {
       const msgRef = ref(rtdb, `chatSessions/${SESSION_ID}/messages`);
       await push(msgRef, { text, sender, timestamp: serverTimestamp() });

@@ -5,6 +5,7 @@ import { getSession } from "@/lib/getSession";
 export async function GET() {
   const session = await getSession();
   if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  if (!adminRtdb) return NextResponse.json({ error: "RTDB not configured" }, { status: 500 });
   const snap = await adminRtdb.ref("notifications").orderByChild("timestamp").limitToLast(20).get();
   const items: object[] = [];
   snap.forEach(child => { items.push({ id: child.key, ...child.val() }); });
@@ -14,6 +15,7 @@ export async function GET() {
 export async function POST(req: NextRequest) {
   const session = await getSession();
   if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  if (!adminRtdb) return NextResponse.json({ error: "RTDB not configured" }, { status: 500 });
   const body = await req.json();
   const ref = adminRtdb.ref("notifications").push();
   await ref.set({ ...body, timestamp: Date.now(), createdBy: session.name });
@@ -23,6 +25,7 @@ export async function POST(req: NextRequest) {
 export async function DELETE(req: NextRequest) {
   const session = await getSession();
   if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  if (!adminRtdb) return NextResponse.json({ error: "RTDB not configured" }, { status: 500 });
   const { id } = await req.json();
   await adminRtdb.ref(`notifications/${id}`).remove();
   return NextResponse.json({ success: true });

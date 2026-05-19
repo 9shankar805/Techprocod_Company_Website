@@ -5,6 +5,7 @@ import { getSession } from "@/lib/getSession";
 export async function GET() {
   const session = await getSession();
   if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  if (!adminRtdb) return NextResponse.json({ error: "RTDB not configured" }, { status: 500 });
   const snap = await adminRtdb.ref("teamMessages").orderByChild("timestamp").limitToLast(100).get();
   const msgs: object[] = [];
   snap.forEach(child => { msgs.push({ id: child.key, ...child.val() }); });
@@ -14,6 +15,7 @@ export async function GET() {
 export async function POST(req: NextRequest) {
   const session = await getSession();
   if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  if (!adminRtdb) return NextResponse.json({ error: "RTDB not configured" }, { status: 500 });
   const { text } = await req.json();
   if (!text?.trim()) return NextResponse.json({ error: "Empty message" }, { status: 400 });
   const ref = adminRtdb.ref("teamMessages").push();
