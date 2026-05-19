@@ -150,8 +150,8 @@ export default function Footer() {
 
         <hr style={{ border: "none", borderTop: "1px solid #e5e7eb", margin: "32px 0 24px" }} />
 
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 12 }}>
-          <p style={{ fontSize: 13, color: "#9ca3af" }}>© 2024 Tech Procod Pvt Ltd. All rights reserved.</p>
+        <div style={{ display: "flex", alignItems: "center", justifyBetween: "space-between", flexWrap: "wrap", gap: 12 }}>
+          <p style={{ fontSize: 13, color: "#9ca3af" }}>© 2026 Tech Procod Pvt Ltd. All rights reserved.</p>
           <div style={{ display: "flex", gap: 24 }}>
             <Link href="/privacy" className="footer-link">Privacy Policy</Link>
             <Link href="/terms" className="footer-link">Terms of Service</Link>

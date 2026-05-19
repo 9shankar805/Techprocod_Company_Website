@@ -23,6 +23,12 @@ const SESSION_ID = typeof crypto !== "undefined" ? crypto.randomUUID() : Date.no
 export default function Chatbot() {
   const [open, setOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>([INITIAL_MESSAGE]);
+  const [suggestions] = useState([
+    "Tell me about Tech Procod",
+    "What services do you offer?",
+    "Where is your office?",
+    "How can I contact you?",
+  ]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
   const bottomRef = useRef<HTMLDivElement>(null);
@@ -30,6 +36,12 @@ export default function Chatbot() {
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
+
+  const handleSuggestion = (text: string) => {
+    setInput(text);
+    // Automatically send if we want
+    // send({ preventDefault: () => {} } as React.FormEvent);
+  };
 
   const saveToRtdb = async (text: string, sender: "user" | "bot") => {
     try {
@@ -90,7 +102,7 @@ export default function Chatbot() {
           onClick={() => setOpen(true)}
           aria-label="Open chat"
           style={{
-            position: "fixed", bottom: 24, left: 24, zIndex: 99,
+            position: "fixed", bottom: 24, right: 24, zIndex: 99,
             width: 52, height: 52, borderRadius: "50%",
             background: "#111827", border: "none", cursor: "pointer",
             display: "flex", alignItems: "center", justifyContent: "center",
@@ -104,7 +116,7 @@ export default function Chatbot() {
       {open && (
         <div
           style={{
-            position: "fixed", bottom: 24, left: 24, zIndex: 200,
+            position: "fixed", bottom: 24, right: 24, zIndex: 200,
             width: 360, maxWidth: "calc(100vw - 32px)",
             height: 520, maxHeight: "calc(100vh - 48px)",
             background: "white", borderRadius: 16,
@@ -160,6 +172,39 @@ export default function Chatbot() {
             )}
             <div ref={bottomRef} />
           </div>
+
+          {/* Suggestions */}
+          {messages.length === 1 && !loading && (
+            <div style={{ padding: "0 16px 12px", display: "flex", flexWrap: "wrap", gap: 6 }}>
+              {suggestions.map((s) => (
+                <button
+                  key={s}
+                  onClick={() => handleSuggestion(s)}
+                  style={{
+                    fontSize: 12,
+                    background: "#eff6ff",
+                    color: "#2563eb",
+                    border: "1px solid #dbeafe",
+                    borderRadius: 100,
+                    padding: "6px 14px",
+                    cursor: "pointer",
+                    transition: "all 0.2s",
+                    fontWeight: 500,
+                  }}
+                  onMouseOver={(e) => { 
+                    e.currentTarget.style.background = "#2563eb"; 
+                    e.currentTarget.style.color = "white";
+                  }}
+                  onMouseOut={(e) => { 
+                    e.currentTarget.style.background = "#eff6ff"; 
+                    e.currentTarget.style.color = "#2563eb";
+                  }}
+                >
+                  {s}
+                </button>
+              ))}
+            </div>
+          )}
 
           {/* Input */}
           <form onSubmit={send} style={{ padding: "12px 16px", borderTop: "1px solid #e5e7eb", background: "white", display: "flex", gap: 8 }}>
