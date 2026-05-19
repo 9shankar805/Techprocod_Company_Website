@@ -1,11 +1,11 @@
 "use client";
 import AdminShell from "@/components/admin/AdminShell";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Plus, Pencil, Trash2, X, Save, Eye } from "lucide-react";
 import { useAdminSession } from "@/hooks/useAdminSession";
 
 type Post = {
-  id: number;
+  id: string;
   title: string;
   slug: string;
   category: string;
@@ -16,16 +16,11 @@ type Post = {
   status: "Published" | "Draft";
 };
 
-const INITIAL: Post[] = [
-  { id: 1, title: "How We Built a Ride-Sharing App for Nepal", slug: "building-ride-sharing-app-nepal", category: "Case Study", excerpt: "A deep dive into the technical challenges building RideSewa.", content: "", date: "Dec 15, 2024", readTime: "8 min", status: "Published" },
-  { id: 2, title: "Next.js + Laravel: The Perfect Stack for Nepal", slug: "nextjs-vs-laravel-nepal", category: "Tech", excerpt: "Why we chose Next.js and Laravel for our projects.", content: "", date: "Dec 10, 2024", readTime: "6 min", status: "Published" },
-  { id: 3, title: "AI Integration for Nepali Businesses in 2025", slug: "ai-integration-nepali-business", category: "AI", excerpt: "How SMEs in Nepal can leverage AI to grow.", content: "", date: "Dec 5, 2024", readTime: "5 min", status: "Published" },
-  { id: 4, title: "Complete Guide to eSewa & Khalti Integration", slug: "esewa-khalti-integration-guide", category: "Tutorial", excerpt: "Step-by-step payment gateway integration guide.", content: "", date: "Nov 28, 2024", readTime: "10 min", status: "Published" },
-  { id: 5, title: "Why Mobile-First Design Matters in Nepal", slug: "mobile-first-design-nepal", category: "Design", excerpt: "80%+ of Nepal's users are on mobile.", content: "", date: "Nov 20, 2024", readTime: "4 min", status: "Published" },
-  { id: 6, title: "Tech Procod 2024: Year in Review", slug: "techprocod-2024-year-review", category: "Company", excerpt: "Our biggest milestones and lessons from 2024.", content: "", date: "Nov 15, 2024", readTime: "7 min", status: "Draft" },
-];
-
-const EMPTY: Omit<Post, "id"> = { title: "", slug: "", category: "Tech", excerpt: "", content: "", date: new Date().toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }), readTime: "5 min", status: "Draft" };
+const EMPTY: Omit<Post, "id"> = {
+  title: "", slug: "", category: "Tech", excerpt: "", content: "",
+  date: new Date().toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }),
+  readTime: "5 min", status: "Draft",
+};
 const CATEGORIES = ["Tech", "Tutorial", "Case Study", "AI", "Design", "Company", "News"];
 const catColor: Record<string, string> = { Tech: "#2563eb", Tutorial: "#059669", "Case Study": "#7c3aed", AI: "#d97706", Design: "#db2777", Company: "#0891b2", News: "#374151" };
 
@@ -35,28 +30,53 @@ function toSlug(title: string) {
 
 export default function AdminBlog() {
   const { role, name } = useAdminSession();
-  const [posts, setPosts] = useState<Post[]>(INITIAL);
+  const [posts, setPosts] = useState<Post[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
   const [modal, setModal] = useState(false);
   const [editing, setEditing] = useState<Post | null>(null);
   const [form, setForm] = useState<Omit<Post, "id">>(EMPTY);
   const [filter, setFilter] = useState("All");
 
-  const openAdd = () => { setEditing(null); setForm(EMPTY); setModal(true); };
-  const openEdit = (p: Post) => { setEditing(p); setForm({ title: p.title, slug: p.slug, category: p.category, excerpt: p.excerpt, content: p.content, date: p.date, readTime: p.readTime, status: p.status }); setModal(true); };
+  const [previewMode, setPreviewMode] = useState(false);
 
-  const save = () => {
+  useEffect(() => {
+    fetch("/api/admin/blog").then((r) => r.json()).then((data) => {
+      if (Array.isArray(data)) setPosts(data);
+      setLoading(false);
+    });
+  }, []);
+
+  const openAdd = () => { setEditing(null); setForm(EMPTY); setPreviewMode(false); setModal(true); };
+  const openEdit = (p: Post) => { setEditing(p); setForm({ title: p.title, slug: p.slug, category: p.category, excerpt: p.excerpt, content: p.content, date: p.date, readTime: p.readTime, status: p.status }); setPreviewMode(false); setModal(true); };
+
+  const save = async () => {
     if (!form.title.trim()) return;
+    setSaving(true);
     const slug = form.slug || toSlug(form.title);
+    const payload = { ...form, slug };
     if (editing) {
-      setPosts((prev) => prev.map((p) => p.id === editing.id ? { ...p, ...form, slug } : p));
+      await fetch("/api/admin/blog", { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ id: editing.id, ...payload }) });
+      setPosts((prev) => prev.map((p) => p.id === editing.id ? { ...p, ...payload } : p));
     } else {
-      setPosts((prev) => [...prev, { id: Date.now(), ...form, slug }]);
+      const res = await fetch("/api/admin/blog", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) });
+      const { id } = await res.json();
+      setPosts((prev) => [{ id, ...payload }, ...prev]);
     }
+    setSaving(false);
     setModal(false);
   };
 
-  const remove = (id: number) => setPosts((prev) => prev.filter((p) => p.id !== id));
-  const toggle = (id: number) => setPosts((prev) => prev.map((p) => p.id === id ? { ...p, status: p.status === "Published" ? "Draft" : "Published" } : p));
+  const remove = async (id: string) => {
+    await fetch("/api/admin/blog", { method: "DELETE", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ id }) });
+    setPosts((prev) => prev.filter((p) => p.id !== id));
+  };
+
+  const toggle = async (p: Post) => {
+    const status = p.status === "Published" ? "Draft" : "Published";
+    await fetch("/api/admin/blog", { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ id: p.id, status }) });
+    setPosts((prev) => prev.map((x) => x.id === p.id ? { ...x, status } : x));
+  };
 
   const filtered = filter === "All" ? posts : posts.filter((p) => p.status === filter);
 
@@ -73,14 +93,12 @@ export default function AdminBlog() {
           </button>
         </div>
 
-        {/* Filter */}
         <div style={{ display: "flex", gap: 8, marginBottom: 20 }}>
           {["All", "Published", "Draft"].map((s) => (
             <button key={s} onClick={() => setFilter(s)} style={{ padding: "7px 14px", borderRadius: 8, fontSize: 13, fontWeight: 500, border: "1px solid", cursor: "pointer", background: filter === s ? "#111827" : "white", color: filter === s ? "white" : "#374151", borderColor: filter === s ? "#111827" : "#e5e7eb" }}>{s}</button>
           ))}
         </div>
 
-        {/* Table */}
         <div style={{ background: "white", border: "1px solid #e5e7eb", borderRadius: 12, overflow: "hidden" }}>
           <table style={{ width: "100%", borderCollapse: "collapse" }}>
             <thead>
@@ -91,7 +109,8 @@ export default function AdminBlog() {
               </tr>
             </thead>
             <tbody>
-              {filtered.map((p) => (
+              {loading && <tr><td colSpan={6} style={{ padding: 32, textAlign: "center", color: "#9ca3af", fontSize: 14 }}>Loading...</td></tr>}
+              {!loading && filtered.map((p) => (
                 <tr key={p.id} style={{ borderTop: "1px solid #f3f4f6" }}>
                   <td style={{ padding: "12px 16px", maxWidth: 280 }}>
                     <p style={{ fontSize: 14, fontWeight: 500, color: "#111827", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{p.title}</p>
@@ -108,7 +127,7 @@ export default function AdminBlog() {
                   <td style={{ padding: "12px 16px" }}>
                     <div style={{ display: "flex", gap: 6 }}>
                       <button onClick={() => openEdit(p)} style={{ padding: "5px 8px", borderRadius: 6, border: "1px solid #e5e7eb", background: "white", cursor: "pointer", color: "#374151" }}><Pencil size={13} /></button>
-                      <button onClick={() => toggle(p.id)} style={{ padding: "5px 8px", borderRadius: 6, border: "1px solid #e5e7eb", background: "white", cursor: "pointer", color: p.status === "Published" ? "#d97706" : "#059669", fontSize: 11, fontWeight: 500 }}>
+                      <button onClick={() => toggle(p)} style={{ padding: "5px 8px", borderRadius: 6, border: "1px solid #e5e7eb", background: "white", cursor: "pointer", color: p.status === "Published" ? "#d97706" : "#059669", fontSize: 11, fontWeight: 500 }}>
                         {p.status === "Published" ? "Draft" : "Publish"}
                       </button>
                       <button onClick={() => remove(p.id)} style={{ padding: "5px 8px", borderRadius: 6, border: "1px solid #fee2e2", background: "#fef2f2", cursor: "pointer", color: "#ef4444" }}><Trash2 size={13} /></button>
@@ -116,7 +135,7 @@ export default function AdminBlog() {
                   </td>
                 </tr>
               ))}
-              {filtered.length === 0 && (
+              {!loading && filtered.length === 0 && (
                 <tr><td colSpan={6} style={{ padding: 32, textAlign: "center", color: "#9ca3af", fontSize: 14 }}>No posts found</td></tr>
               )}
             </tbody>
@@ -124,7 +143,6 @@ export default function AdminBlog() {
         </div>
       </div>
 
-      {/* Modal */}
       {modal && (
         <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.4)", zIndex: 200, display: "flex", alignItems: "center", justifyContent: "center", padding: 16 }}>
           <div style={{ background: "white", borderRadius: 16, padding: 28, width: "100%", maxWidth: 560, maxHeight: "90vh", overflowY: "auto" }}>
@@ -155,11 +173,22 @@ export default function AdminBlog() {
               </div>
               <div>
                 <label style={{ fontSize: 13, fontWeight: 500, color: "#374151", display: "block", marginBottom: 6 }}>Excerpt</label>
-                <textarea rows={2} placeholder="Short description shown in blog list..." value={form.excerpt} onChange={(e) => setForm({ ...form, excerpt: e.target.value })} style={{ resize: "vertical" }} />
+                <textarea rows={2} placeholder="Short description..." value={form.excerpt} onChange={(e) => setForm({ ...form, excerpt: e.target.value })} style={{ resize: "vertical" }} />
               </div>
               <div>
-                <label style={{ fontSize: 13, fontWeight: 500, color: "#374151", display: "block", marginBottom: 6 }}>Content</label>
-                <textarea rows={8} placeholder="Write your blog post content here..." value={form.content} onChange={(e) => setForm({ ...form, content: e.target.value })} style={{ resize: "vertical", fontFamily: "monospace", fontSize: 13 }} />
+                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 6 }}>
+                  <label style={{ fontSize: 13, fontWeight: 500, color: "#374151" }}>Content (Markdown supported)</label>
+                  <button type="button" onClick={() => setPreviewMode(p => !p)} style={{ display: "flex", alignItems: "center", gap: 5, fontSize: 12, color: "#2563eb", background: "none", border: "none", cursor: "pointer", padding: 0 }}>
+                    <Eye size={13} /> {previewMode ? "Edit" : "Preview"}
+                  </button>
+                </div>
+                {previewMode ? (
+                  <div style={{ minHeight: 200, border: "1px solid #e5e7eb", borderRadius: 8, padding: "12px 14px", fontSize: 14, color: "#374151", lineHeight: 1.8, background: "#f9fafb", whiteSpace: "pre-wrap" }}>
+                    {form.content || <span style={{ color: "#9ca3af" }}>Nothing to preview</span>}
+                  </div>
+                ) : (
+                  <textarea rows={10} placeholder="Write your blog post content here... (Markdown supported)" value={form.content} onChange={(e) => setForm({ ...form, content: e.target.value })} style={{ resize: "vertical", fontFamily: "monospace", fontSize: 13 }} />
+                )}
               </div>
               <div>
                 <label style={{ fontSize: 13, fontWeight: 500, color: "#374151", display: "block", marginBottom: 6 }}>Status</label>
@@ -170,8 +199,8 @@ export default function AdminBlog() {
               </div>
               <div style={{ display: "flex", gap: 10, marginTop: 4 }}>
                 <button onClick={() => setModal(false)} className="btn-outline" style={{ flex: 1, justifyContent: "center", fontSize: 13 }}>Cancel</button>
-                <button onClick={save} className="btn-primary" style={{ flex: 1, justifyContent: "center", fontSize: 13 }}>
-                  <Save size={14} /> Save Post
+                <button onClick={save} disabled={saving} className="btn-primary" style={{ flex: 1, justifyContent: "center", fontSize: 13 }}>
+                  <Save size={14} /> {saving ? "Saving..." : "Save Post"}
                 </button>
               </div>
             </div>

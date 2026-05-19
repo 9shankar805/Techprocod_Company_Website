@@ -8,6 +8,7 @@ const navLinks = [
   { label: "Services", href: "/services" },
   { label: "Portfolio", href: "/portfolio" },
   { label: "Products", href: "/products" },
+  { label: "Pricing", href: "/pricing" },
   { label: "Blog", href: "/blog" },
   { label: "Careers", href: "/careers" },
 ];
@@ -27,9 +28,11 @@ export default function Navbar() {
       <nav className={`navbar ${scrolled ? "navbar-scrolled" : ""}`}>
         <div className="container navbar-inner">
           <Link href="/" className="navbar-logo">
-            <div className="navbar-logo-icon">
-              <Code2 size={16} color="white" />
-            </div>
+            <img 
+              src="/assets/icon.jpg" 
+              alt="TechProcod Icon" 
+              style={{ height: 32, width: 32, borderRadius: 8, objectFit: "cover", display: "block" }} 
+            />
             <span className="navbar-logo-text">
               Tech<span style={{ color: "#2563eb" }}>Procod</span>
             </span>

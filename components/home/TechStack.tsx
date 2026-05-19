@@ -1,20 +1,54 @@
-const techs = [
-  "React", "Next.js", "Laravel", "TypeScript", "Tailwind CSS",
-  "MySQL", "React Native", "Node.js", "Python", "Docker", "AWS", "Figma",
-];
+const DEFAULTS = {
+  badge: "Tech Stack",
+  heading: "Technologies We Use",
+  techs: [
+    { name: "React" },
+    { name: "Next.js" },
+    { name: "Laravel" },
+    { name: "TypeScript" },
+    { name: "Tailwind CSS" },
+    { name: "MySQL" },
+    { name: "React Native" },
+    { name: "Node.js" },
+    { name: "Python" },
+    { name: "Docker" },
+    { name: "AWS" },
+    { name: "Figma" },
+  ],
+};
 
-export default function TechStack() {
+interface TechItem {
+  name: string;
+}
+
+interface TechStackProps {
+  badge?: string;
+  heading?: string;
+  techs?: TechItem[];
+}
+
+export default function TechStack({
+  badge,
+  heading,
+  techs,
+}: TechStackProps = {}) {
+  const data = {
+    badge: badge ?? DEFAULTS.badge,
+    heading: heading ?? DEFAULTS.heading,
+    techs: Array.isArray(techs) && techs.length > 0 ? techs : DEFAULTS.techs,
+  };
+
   return (
     <section className="section" style={{ background: "#f8f9fa" }}>
       <div className="container">
         <div style={{ marginBottom: 36 }}>
-          <span className="badge">Tech Stack</span>
-          <h2 className="section-title">Technologies We Use</h2>
+          <span className="badge">{data.badge}</span>
+          <h2 className="section-title">{data.heading}</h2>
         </div>
         <div style={{ display: "flex", flexWrap: "wrap", gap: 10 }}>
-          {techs.map((t) => (
+          {data.techs.map((t) => (
             <span
-              key={t}
+              key={t.name}
               style={{
                 fontSize: 14,
                 fontWeight: 500,
@@ -25,7 +59,7 @@ export default function TechStack() {
                 borderRadius: 8,
               }}
             >
-              {t}
+              {t.name}
             </span>
           ))}
         </div>

@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
-import ProductsHero from "@/components/products/ProductsHero";
-import ProductsList from "@/components/products/ProductsList";
-import CTASection from "@/components/home/CTASection";
+import { loadPageContentServer } from "@/lib/pageContentServer";
+import { DEFAULT_SECTIONS } from "@/app/admin/page-builder/pageRegistry";
+import { renderSection } from "@/app/admin/page-builder/renderSections";
+
+export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
   title: "Software Products | POS, Hotel Management, Delivery System | Tech Procod",
@@ -28,12 +30,11 @@ export const metadata: Metadata = {
   },
 };
 
-export default function ProductsPage() {
-  return (
-    <>
-      <ProductsHero />
-      <ProductsList />
-      <CTASection />
-    </>
-  );
+export default async function ProductsPage() {
+  const raw = await loadPageContentServer("products");
+  const sections = (raw ?? DEFAULT_SECTIONS["products"])
+    .filter((s) => s.visible)
+    .sort((a, b) => a.order - b.order);
+
+  return <>{sections.map((s) => renderSection(s))}</>;
 }

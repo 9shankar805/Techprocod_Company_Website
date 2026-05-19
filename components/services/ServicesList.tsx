@@ -1,6 +1,6 @@
 import { Globe, Smartphone, ShoppingCart, Palette, Server, Search, Code, Car, Hotel, Brain, CreditCard, BarChart } from "lucide-react";
 
-const services = [
+const defaultServices = [
   {
     id: "web", icon: Globe, title: "Web Development",
     desc: "Fast, modern, and scalable web applications using React, Next.js, and Laravel. From landing pages to complex platforms.",
@@ -63,30 +63,49 @@ const services = [
   },
 ];
 
-export default function ServicesList() {
+interface ServiceListItem {
+  id: string;
+  title: string;
+  desc: string;
+  features: string[];
+}
+
+interface ServicesListProps {
+  services?: ServiceListItem[];
+}
+
+export default function ServicesList({ services: customServices }: ServicesListProps = {}) {
+  const displayServices = customServices && customServices.length > 0 ? customServices : defaultServices;
+
   return (
     <section className="section">
       <div className="container">
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))", gap: 20 }}>
-          {services.map(({ id, icon: Icon, title, desc, features }) => (
-            <div key={id} id={id} className="card">
-              <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 14 }}>
-                <div style={{ width: 36, height: 36, background: "#eff6ff", borderRadius: 8, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-                  <Icon size={18} color="#2563eb" />
+          {displayServices.map(({ id, title, desc, features }) => {
+            // Find icon from default list
+            const iconInfo = defaultServices.find(s => s.id === id || s.title === title);
+            const Icon = iconInfo?.icon || Code;
+
+            return (
+              <div key={id} id={id} className="card">
+                <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 14 }}>
+                  <div style={{ width: 36, height: 36, background: "#eff6ff", borderRadius: 8, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                    <Icon size={18} color="#2563eb" />
+                  </div>
+                  <h3 style={{ fontSize: 16, fontWeight: 600, color: "#111827" }}>{title}</h3>
                 </div>
-                <h3 style={{ fontSize: 16, fontWeight: 600, color: "#111827" }}>{title}</h3>
+                <p style={{ fontSize: 14, color: "#6b7280", lineHeight: 1.65, marginBottom: 16 }}>{desc}</p>
+                <ul style={{ listStyle: "none", display: "flex", flexDirection: "column", gap: 6 }}>
+                  {features.map((f) => (
+                    <li key={f} style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 13, color: "#6b7280" }}>
+                      <span style={{ width: 4, height: 4, borderRadius: "50%", background: "#2563eb", flexShrink: 0 }} />
+                      {f}
+                    </li>
+                  ))}
+                </ul>
               </div>
-              <p style={{ fontSize: 14, color: "#6b7280", lineHeight: 1.65, marginBottom: 16 }}>{desc}</p>
-              <ul style={{ listStyle: "none", display: "flex", flexDirection: "column", gap: 6 }}>
-                {features.map((f) => (
-                  <li key={f} style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 13, color: "#6b7280" }}>
-                    <span style={{ width: 4, height: 4, borderRadius: "50%", background: "#2563eb", flexShrink: 0 }} />
-                    {f}
-                  </li>
-                ))}
-              </ul>
-            </div>
-          ))}
+            );
+          })}
         </div>
       </div>
     </section>

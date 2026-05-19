@@ -33,9 +33,9 @@ export const SESSION_KEY = "tp_admin_session";
 
 // What each role can access
 export const ROLE_PERMISSIONS: Record<Role, string[]> = {
-  superadmin: ["/admin", "/admin/inquiries", "/admin/portfolio", "/admin/blog", "/admin/jobs", "/admin/users"],
-  editor:     ["/admin", "/admin/portfolio", "/admin/blog"],
-  support:    ["/admin", "/admin/inquiries"],
+  superadmin: ["/admin", "/admin/inquiries", "/admin/portfolio", "/admin/blog", "/admin/jobs", "/admin/applications", "/admin/users", "/admin/employees", "/admin/leaves", "/admin/attendance", "/admin/projects", "/admin/tasks", "/admin/finance", "/admin/announcements", "/admin/settings", "/admin/messages", "/admin/hr/payroll", "/admin/hr/performance", "/admin/hr/orgchart", "/admin/clients", "/admin/audit", "/admin/testimonials", "/admin/page-builder"],
+  editor:     ["/admin", "/admin/portfolio", "/admin/blog", "/admin/tasks", "/admin/announcements", "/admin/messages", "/admin/testimonials", "/admin/page-builder"],
+  support:    ["/admin", "/admin/inquiries", "/admin/applications", "/admin/employees", "/admin/leaves", "/admin/attendance", "/admin/announcements", "/admin/messages", "/admin/hr/orgchart", "/admin/clients"],
 };
 
 export function canAccess(role: Role, path: string): boolean {

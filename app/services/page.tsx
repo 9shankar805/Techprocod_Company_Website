@@ -1,8 +1,9 @@
 import type { Metadata } from "next";
-import ServicesHero from "@/components/services/ServicesHero";
-import ServicesList from "@/components/services/ServicesList";
-import ProcessSection from "@/components/services/ProcessSection";
-import CTASection from "@/components/home/CTASection";
+import { loadPageContentServer } from "@/lib/pageContentServer";
+import { DEFAULT_SECTIONS } from "@/app/admin/page-builder/pageRegistry";
+import { renderSection } from "@/app/admin/page-builder/renderSections";
+
+export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
   title: "Web Development, Mobile Apps & Digital Services Nepal | Tech Procod",
@@ -31,13 +32,11 @@ export const metadata: Metadata = {
   },
 };
 
-export default function ServicesPage() {
-  return (
-    <>
-      <ServicesHero />
-      <ServicesList />
-      <ProcessSection />
-      <CTASection />
-    </>
-  );
+export default async function ServicesPage() {
+  const raw = await loadPageContentServer("services");
+  const sections = (raw ?? DEFAULT_SECTIONS["services"])
+    .filter((s) => s.visible)
+    .sort((a, b) => a.order - b.order);
+
+  return <>{sections.map((s) => renderSection(s))}</>;
 }

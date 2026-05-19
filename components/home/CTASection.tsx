@@ -1,53 +1,106 @@
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 
-export default function CTASection() {
+interface CTAContent {
+  heading?: string;
+  subheading?: string;
+  primaryCtaLabel?: string;
+  primaryCtaHref?: string;
+  secondaryCtaLabel?: string;
+  whatsappUrl?: string;
+}
+
+const DEFAULTS: Required<CTAContent> = {
+  heading: "Ready to Build Something?",
+  subheading:
+    "Tell us about your project and we'll get back to you with a free estimate within 24 hours.",
+  primaryCtaLabel: "Get a Free Quote",
+  primaryCtaHref: "/contact",
+  secondaryCtaLabel: "Chat on WhatsApp",
+  whatsappUrl: "https://wa.me/9779800000000",
+};
+
+interface CTASectionProps {
+  heading?: string;
+  subheading?: string;
+  primaryCtaLabel?: string;
+  primaryCtaHref?: string;
+  secondaryCtaLabel?: string;
+  whatsappUrl?: string;
+}
+
+export default function CTASection({
+  heading,
+  subheading,
+  primaryCtaLabel,
+  primaryCtaHref,
+  secondaryCtaLabel,
+  whatsappUrl,
+}: CTASectionProps = {}) {
+  const data: Required<CTAContent> = {
+    heading: heading ?? DEFAULTS.heading,
+    subheading: subheading ?? DEFAULTS.subheading,
+    primaryCtaLabel: primaryCtaLabel ?? DEFAULTS.primaryCtaLabel,
+    primaryCtaHref: primaryCtaHref ?? DEFAULTS.primaryCtaHref,
+    secondaryCtaLabel: secondaryCtaLabel ?? DEFAULTS.secondaryCtaLabel,
+    whatsappUrl: whatsappUrl ?? DEFAULTS.whatsappUrl,
+  };
+
   return (
-    <section style={{ background: "#2563eb", padding: "72px 0" }}>
-      <div className="container" style={{ textAlign: "center" }}>
-        <h2 style={{ fontSize: "clamp(28px, 4vw, 40px)", fontWeight: 700, color: "white", letterSpacing: "-0.02em", marginBottom: 16 }}>
-          Ready to Build Something?
+    <section style={{ background: "#0f172a", padding: "80px 0", position: "relative", overflow: "hidden" }}>
+      {/* Background decoration */}
+      <div style={{ position: "absolute", top: -100, right: -100, width: 300, height: 300, background: "rgba(37, 99, 235, 0.1)", borderRadius: "50%", filter: "blur(60px)" }} />
+      <div style={{ position: "absolute", bottom: -100, left: -100, width: 300, height: 300, background: "rgba(37, 99, 235, 0.05)", borderRadius: "50%", filter: "blur(60px)" }} />
+
+      <div className="container" style={{ textAlign: "center", position: "relative", zIndex: 1 }}>
+        <h2
+          style={{
+            fontSize: "clamp(32px, 5vw, 48px)",
+            fontWeight: 800,
+            color: "white",
+            letterSpacing: "-0.03em",
+            lineHeight: 1.1,
+            marginBottom: 20,
+          }}
+        >
+          {data.heading}
         </h2>
-        <p style={{ fontSize: 16, color: "rgba(255,255,255,0.75)", marginBottom: 36, maxWidth: 480, margin: "0 auto 36px" }}>
-          Tell us about your project and we&apos;ll get back to you with a free estimate within 24 hours.
+        <p
+          style={{
+            fontSize: 18,
+            color: "#94a3b8",
+            marginBottom: 48,
+            maxWidth: 600,
+            margin: "0 auto 48px",
+            lineHeight: 1.6,
+          }}
+        >
+          {data.subheading}
         </p>
-        <div style={{ display: "flex", gap: 12, justifyContent: "center", flexWrap: "wrap" }}>
+        <div style={{ display: "flex", gap: 16, justifyContent: "center", flexWrap: "wrap" }}>
           <Link
-            href="/contact"
+            href={data.primaryCtaHref}
+            className="btn-primary"
             style={{
-              display: "inline-flex",
-              alignItems: "center",
-              gap: 8,
-              background: "white",
-              color: "#2563eb",
-              padding: "12px 28px",
-              borderRadius: 8,
-              fontWeight: 600,
-              fontSize: 15,
-              textDecoration: "none",
+              padding: "14px 36px",
+              fontSize: 16,
             }}
           >
-            Get a Free Quote <ArrowRight size={16} />
+            {data.primaryCtaLabel} <ArrowRight size={18} />
           </Link>
           <a
-            href="https://wa.me/9779800000000"
+            href={data.whatsappUrl}
             target="_blank"
             rel="noopener noreferrer"
+            className="btn-outline"
             style={{
-              display: "inline-flex",
-              alignItems: "center",
-              gap: 8,
-              background: "transparent",
               color: "white",
-              padding: "12px 28px",
-              borderRadius: 8,
-              fontWeight: 600,
-              fontSize: 15,
-              textDecoration: "none",
-              border: "1px solid rgba(255,255,255,0.4)",
+              borderColor: "rgba(255,255,255,0.2)",
+              padding: "14px 36px",
+              fontSize: 16,
             }}
           >
-            Chat on WhatsApp
+            {data.secondaryCtaLabel}
           </a>
         </div>
       </div>

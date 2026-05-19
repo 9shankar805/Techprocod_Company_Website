@@ -1,4 +1,4 @@
-const items = [
+const defaultItems = [
   {
     title: "Our Mission",
     desc: "To empower Nepali businesses with cutting-edge digital solutions that are affordable, scalable, and built to last. We bridge the gap between global technology standards and local business needs.",
@@ -13,15 +13,43 @@ const items = [
   },
 ];
 
-export default function MissionVision() {
+interface MissionItem {
+  title: string;
+  desc: string;
+}
+
+interface MissionVisionProps {
+  items?: MissionItem[];
+}
+
+export default function MissionVision({ items: customItems }: MissionVisionProps) {
+  const items =
+    Array.isArray(customItems) && customItems.length > 0
+      ? customItems
+      : defaultItems;
+
   return (
-    <section className="section">
+    <section className="section" style={{ background: "white" }}>
       <div className="container">
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))", gap: 20 }}>
-          {items.map(({ title, desc }) => (
-            <div key={title} className="card">
-              <h3 style={{ fontSize: 17, fontWeight: 700, color: "#111827", marginBottom: 12 }}>{title}</h3>
-              <p style={{ fontSize: 14, color: "#6b7280", lineHeight: 1.7 }}>{desc}</p>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))", gap: 32 }}>
+          {items.map(({ title, desc }, index) => (
+            <div key={title} className="card" style={{ padding: 40, border: "none", background: "#f8fafc", position: "relative", overflow: "hidden" }}>
+              <div style={{ 
+                position: "absolute", 
+                top: -20, 
+                right: -20, 
+                fontSize: 120, 
+                fontWeight: 900, 
+                color: "#f1f5f9", 
+                zIndex: 0,
+                lineHeight: 1
+              }}>
+                {index + 1}
+              </div>
+              <div style={{ position: "relative", zIndex: 1 }}>
+                <h3 style={{ fontSize: 20, fontWeight: 800, color: "#0f172a", marginBottom: 16 }}>{title}</h3>
+                <p style={{ fontSize: 15, color: "#475569", lineHeight: 1.8 }}>{desc}</p>
+              </div>
             </div>
           ))}
         </div>

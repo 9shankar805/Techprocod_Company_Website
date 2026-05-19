@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
-import PortfolioHero from "@/components/portfolio/PortfolioHero";
-import ProjectsGrid from "@/components/portfolio/ProjectsGrid";
-import CTASection from "@/components/home/CTASection";
+import { loadPageContentServer } from "@/lib/pageContentServer";
+import { DEFAULT_SECTIONS } from "@/app/admin/page-builder/pageRegistry";
+import { renderSection } from "@/app/admin/page-builder/renderSections";
+
+export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
   title: "Portfolio | Web Apps, Mobile Apps & Projects | Tech Procod Nepal",
@@ -30,12 +32,11 @@ export const metadata: Metadata = {
   },
 };
 
-export default function PortfolioPage() {
-  return (
-    <>
-      <PortfolioHero />
-      <ProjectsGrid />
-      <CTASection />
-    </>
-  );
+export default async function PortfolioPage() {
+  const raw = await loadPageContentServer("portfolio");
+  const sections = (raw ?? DEFAULT_SECTIONS["portfolio"])
+    .filter((s) => s.visible)
+    .sort((a, b) => a.order - b.order);
+
+  return <>{sections.map((s) => renderSection(s))}</>;
 }

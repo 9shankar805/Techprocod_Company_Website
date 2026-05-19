@@ -1,7 +1,17 @@
 import Link from "next/link";
 import { Calendar, Clock } from "lucide-react";
 
-const posts = [
+interface BlogPost { slug: string; title: string; excerpt: string; category: string; date: string; readTime: string }
+
+interface BlogGridProps { content?: Record<string, unknown> }
+
+function isValidPosts(val: unknown): val is BlogPost[] {
+  return Array.isArray(val) && val.length > 0 && val.every(
+    (p) => p && typeof p === "object" && "slug" in p && "title" in p && "excerpt" in p
+  );
+}
+
+const defaultPosts: BlogPost[] = [
   {
     slug: "building-ride-sharing-app-nepal",
     title: "How We Built a Ride-Sharing App for Nepal",
@@ -40,7 +50,8 @@ const posts = [
   },
 ];
 
-export default function BlogGrid() {
+export default function BlogGrid({ content }: BlogGridProps = {}) {
+  const posts = isValidPosts(content?.posts) ? (content.posts as BlogPost[]) : defaultPosts;
   return (
     <section className="section">
       <div className="container">

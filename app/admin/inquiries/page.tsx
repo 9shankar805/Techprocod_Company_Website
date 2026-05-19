@@ -4,16 +4,16 @@ import { useState, useEffect } from "react";
 import { Search, Mail, Phone, Trash2 } from "lucide-react";
 import type { Role } from "@/lib/adminAuth";
 
-const INITIAL_INQUIRIES = [
-  { id: 1, name: "Ramesh Sharma",  email: "ramesh@example.com",  phone: "+977-9812345678", service: "Web Development", message: "I need a website for my business. Please contact me.",                    date: "Dec 15, 2024", status: "New" },
-  { id: 2, name: "Priya Thapa",    email: "priya@example.com",   phone: "+977-9823456789", service: "Mobile App",      message: "Looking for a React Native developer for my startup app.",              date: "Dec 14, 2024", status: "Replied" },
-  { id: 3, name: "Bikash Yadav",   email: "bikash@example.com",  phone: "+977-9834567890", service: "E-commerce",      message: "Want to build an online store for my clothing brand.",                  date: "Dec 13, 2024", status: "New" },
-  { id: 4, name: "Sunita Jha",     email: "sunita@example.com",  phone: "+977-9845678901", service: "UI/UX Design",    message: "Need a redesign for my hotel website.",                                 date: "Dec 12, 2024", status: "Closed" },
-  { id: 5, name: "Anil Kumar",     email: "anil@example.com",    phone: "+977-9856789012", service: "SEO & Marketing", message: "My website is not ranking on Google. Need help with SEO.",              date: "Dec 11, 2024", status: "New" },
-  { id: 6, name: "Sita Devi",      email: "sita@example.com",    phone: "+977-9867890123", service: "Custom Software", message: "Need a POS system for my retail shop.",                                 date: "Dec 10, 2024", status: "Replied" },
-];
-
-type Inquiry = typeof INITIAL_INQUIRIES[0];
+type Inquiry = {
+  id: string;
+  name: string;
+  email: string;
+  phone: string;
+  service: string;
+  message: string;
+  createdAt: string;
+  status: string;
+};
 
 const statusStyle: Record<string, { bg: string; text: string }> = {
   New:     { bg: "#eff6ff", text: "#2563eb" },
@@ -24,7 +24,8 @@ const statusStyle: Record<string, { bg: string; text: string }> = {
 export default function InquiriesPage() {
   const [role, setRole] = useState<Role>("support");
   const [name, setName] = useState("Support Staff");
-  const [inquiries, setInquiries] = useState(INITIAL_INQUIRIES);
+  const [inquiries, setInquiries] = useState<Inquiry[]>([]);
+  const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState("All");
   const [selected, setSelected] = useState<Inquiry | null>(null);
@@ -34,6 +35,10 @@ export default function InquiriesPage() {
       if (d.role) setRole(d.role);
       if (d.name) setName(d.name);
     });
+    fetch("/api/admin/inquiries").then((r) => r.json()).then((data) => {
+      if (Array.isArray(data)) setInquiries(data);
+      setLoading(false);
+    });
   }, []);
 
   const filtered = inquiries.filter((i) => {
@@ -42,12 +47,17 @@ export default function InquiriesPage() {
     return matchSearch && (filter === "All" || i.status === filter);
   });
 
-  const updateStatus = (id: number, status: string) => {
+  const updateStatus = async (id: string, status: string) => {
+    await fetch("/api/admin/inquiries", { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ id, status }) });
     setInquiries((p) => p.map((i) => i.id === id ? { ...i, status } : i));
     setSelected((p) => p?.id === id ? { ...p, status } : p);
   };
 
-  const del = (id: number) => { setInquiries((p) => p.filter((i) => i.id !== id)); if (selected?.id === id) setSelected(null); };
+  const del = async (id: string) => {
+    await fetch("/api/admin/inquiries", { method: "DELETE", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ id }) });
+    setInquiries((p) => p.filter((i) => i.id !== id));
+    if (selected?.id === id) setSelected(null);
+  };
 
   return (
     <AdminShell role={role} name={name}>
@@ -80,16 +90,17 @@ export default function InquiriesPage() {
                 </tr>
               </thead>
               <tbody>
-                {filtered.map((row) => (
+                {loading && <tr><td colSpan={5} style={{ padding: 32, textAlign: "center", color: "#9ca3af", fontSize: 14 }}>Loading...</td></tr>}
+                {!loading && filtered.map((row) => (
                   <tr key={row.id} onClick={() => setSelected(row)} style={{ borderTop: "1px solid #f3f4f6", cursor: "pointer", background: selected?.id === row.id ? "#f8faff" : "white" }}>
                     <td style={{ padding: "12px 16px" }}>
                       <p style={{ fontSize: 14, fontWeight: 500, color: "#111827" }}>{row.name}</p>
                       <p style={{ fontSize: 12, color: "#9ca3af" }}>{row.email}</p>
                     </td>
                     <td style={{ padding: "12px 16px", fontSize: 13, color: "#6b7280" }}>{row.service}</td>
-                    <td style={{ padding: "12px 16px", fontSize: 13, color: "#9ca3af" }}>{row.date}</td>
+                    <td style={{ padding: "12px 16px", fontSize: 13, color: "#9ca3af" }}>{row.createdAt}</td>
                     <td style={{ padding: "12px 16px" }}>
-                      <span style={{ fontSize: 12, fontWeight: 600, color: statusStyle[row.status].text, background: statusStyle[row.status].bg, padding: "3px 10px", borderRadius: 100 }}>{row.status}</span>
+                      <span style={{ fontSize: 12, fontWeight: 600, color: statusStyle[row.status]?.text ?? "#374151", background: statusStyle[row.status]?.bg ?? "#f3f4f6", padding: "3px 10px", borderRadius: 100 }}>{row.status}</span>
                     </td>
                     <td style={{ padding: "12px 16px" }}>
                       {role === "superadmin" && (
@@ -100,7 +111,7 @@ export default function InquiriesPage() {
                     </td>
                   </tr>
                 ))}
-                {filtered.length === 0 && <tr><td colSpan={5} style={{ padding: 32, textAlign: "center", color: "#9ca3af", fontSize: 14 }}>No inquiries found</td></tr>}
+                {!loading && filtered.length === 0 && <tr><td colSpan={5} style={{ padding: 32, textAlign: "center", color: "#9ca3af", fontSize: 14 }}>No inquiries found</td></tr>}
               </tbody>
             </table>
           </div>

@@ -34,7 +34,9 @@ const products = [
   },
 ];
 
-export default function ProductsList() {
+interface ProductsListProps { content?: Record<string, unknown> }
+
+export default function ProductsList({ content: _content }: ProductsListProps = {}) {
   return (
     <section className="section">
       <div className="container">

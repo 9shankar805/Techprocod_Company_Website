@@ -1,0 +1,21 @@
+{
+  "indexes": [
+    { "collectionGroup": "blog",          "queryScope": "COLLECTION", "fields": [{ "fieldPath": "status",     "order": "ASCENDING"  }, { "fieldPath": "createdAt",    "order": "DESCENDING" }] },
+    { "collectionGroup": "portfolio",     "queryScope": "COLLECTION", "fields": [{ "fieldPath": "status",     "order": "ASCENDING"  }, { "fieldPath": "createdAt",    "order": "DESCENDING" }] },
+    { "collectionGroup": "jobs",          "queryScope": "COLLECTION", "fields": [{ "fieldPath": "status",     "order": "ASCENDING"  }, { "fieldPath": "createdAt",    "order": "DESCENDING" }] },
+    { "collectionGroup": "inquiries",     "queryScope": "COLLECTION", "fields": [{ "fieldPath": "status",     "order": "ASCENDING"  }, { "fieldPath": "createdAt",    "order": "DESCENDING" }] },
+    { "collectionGroup": "newsletter",    "queryScope": "COLLECTION", "fields": [{ "fieldPath": "email",      "order": "ASCENDING"  }, { "fieldPath": "subscribedAt", "order": "DESCENDING" }] },
+    { "collectionGroup": "employees",     "queryScope": "COLLECTION", "fields": [{ "fieldPath": "status",     "order": "ASCENDING"  }, { "fieldPath": "createdAt",    "order": "DESCENDING" }] },
+    { "collectionGroup": "employees",     "queryScope": "COLLECTION", "fields": [{ "fieldPath": "department", "order": "ASCENDING"  }, { "fieldPath": "createdAt",    "order": "DESCENDING" }] },
+    { "collectionGroup": "leaves",        "queryScope": "COLLECTION", "fields": [{ "fieldPath": "status",     "order": "ASCENDING"  }, { "fieldPath": "createdAt",    "order": "DESCENDING" }] },
+    { "collectionGroup": "attendance",    "queryScope": "COLLECTION", "fields": [{ "fieldPath": "employeeId", "order": "ASCENDING"  }, { "fieldPath": "date",         "order": "DESCENDING" }] },
+    { "collectionGroup": "attendance",    "queryScope": "COLLECTION", "fields": [{ "fieldPath": "date",       "order": "DESCENDING" }, { "fieldPath": "status",       "order": "ASCENDING"  }] },
+    { "collectionGroup": "projects",      "queryScope": "COLLECTION", "fields": [{ "fieldPath": "status",     "order": "ASCENDING"  }, { "fieldPath": "createdAt",    "order": "DESCENDING" }] },
+    { "collectionGroup": "projects",      "queryScope": "COLLECTION", "fields": [{ "fieldPath": "priority",   "order": "ASCENDING"  }, { "fieldPath": "createdAt",    "order": "DESCENDING" }] },
+    { "collectionGroup": "tasks",         "queryScope": "COLLECTION", "fields": [{ "fieldPath": "status",     "order": "ASCENDING"  }, { "fieldPath": "createdAt",    "order": "DESCENDING" }] },
+    { "collectionGroup": "tasks",         "queryScope": "COLLECTION", "fields": [{ "fieldPath": "priority",   "order": "ASCENDING"  }, { "fieldPath": "createdAt",    "order": "DESCENDING" }] },
+    { "collectionGroup": "finance",       "queryScope": "COLLECTION", "fields": [{ "fieldPath": "type",       "order": "ASCENDING"  }, { "fieldPath": "date",         "order": "DESCENDING" }] },
+    { "collectionGroup": "announcements", "queryScope": "COLLECTION", "fields": [{ "fieldPath": "pinned",     "order": "DESCENDING" }, { "fieldPath": "createdAt",    "order": "DESCENDING" }] }
+  ],
+  "fieldOverrides": []
+}

@@ -10,6 +10,7 @@ const cols = [
     title: "Company",
     links: [
       { label: "About Us", href: "/about" },
+      { label: "Pricing", href: "/pricing" },
       { label: "Careers", href: "/careers" },
       { label: "Blog", href: "/blog" },
       { label: "Contact", href: "/contact" },
@@ -73,9 +74,11 @@ export default function Footer() {
           {/* Brand */}
           <div>
             <Link href="/" className="footer-logo">
-              <div style={{ width: 32, height: 32, background: "#2563eb", borderRadius: 8, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-                <Code2 size={16} color="white" />
-              </div>
+              <img 
+                src="/assets/icon.jpg" 
+                alt="TechProcod Icon" 
+                style={{ height: 32, width: 32, borderRadius: 8, objectFit: "cover", display: "block", flexShrink: 0 }} 
+              />
               <span style={{ fontWeight: 700, fontSize: 16, color: "#111827" }}>
                 Tech<span style={{ color: "#2563eb" }}>Procod</span>{" "}
                 <span style={{ fontWeight: 400, color: "#9ca3af", fontSize: 13 }}>Pvt Ltd</span>

@@ -1,0 +1,56 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Employees — admin only via Admin SDK
+    match /employees/{id} {
+      allow read, write: if false;
+    }
+
+    // Leave requests — admin only via Admin SDK
+    match /leaves/{id} {
+      allow read, write: if false;
+    }
+
+    // Attendance — admin only via Admin SDK
+    match /attendance/{id} {
+      allow read, write: if false;
+    }
+
+    // Blog — anyone can read published posts
+    match /blog/{id} {
+      allow read: if resource.data.status == "Published";
+      allow write: if false; // only Admin SDK (server-side)
+    }
+
+    // Portfolio — anyone can read published projects
+    match /portfolio/{id} {
+      allow read: if resource.data.status == "Published";
+      allow write: if false;
+    }
+
+    // Jobs — anyone can read open jobs
+    match /jobs/{id} {
+      allow read: if resource.data.status == "Open";
+      allow write: if false;
+    }
+
+    // Page Content — public read, admin write via API (Admin SDK)
+    match /pageContent/{id} {
+      allow read: if true;
+      allow write: if false; // only Admin SDK
+    }
+
+    // Inquiries — write only (contact form), no client reads
+    match /inquiries/{id} {
+      allow create: if true;
+      allow read, update, delete: if false;
+    }
+
+    // Newsletter — write only (subscribe), no client reads
+    match /newsletter/{id} {
+      allow create: if true;
+      allow read, update, delete: if false;
+    }
+  }
+}

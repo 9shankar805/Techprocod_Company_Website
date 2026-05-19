@@ -1,11 +1,7 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
-import Navbar from "@/components/Navbar";
-import Footer from "@/components/Footer";
-import FloatingContact from "@/components/FloatingContact";
-import CookieConsent from "@/components/CookieConsent";
-import BackToTop from "@/components/BackToTop";
+import PublicShell from "@/components/PublicShell";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -30,6 +26,11 @@ export const metadata: Metadata = {
   authors: [{ name: "Tech Procod Pvt Ltd" }],
   creator: "Tech Procod Pvt Ltd",
   publisher: "Tech Procod Pvt Ltd",
+  icons: {
+    icon: "/assets/icon.jpg",
+    shortcut: "/assets/icon.jpg",
+    apple: "/assets/icon.jpg",
+  },
   formatDetection: {
     email: false,
     telephone: false,
@@ -168,12 +169,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         />
       </head>
       <body className={inter.className}>
-        <Navbar />
-        <main>{children}</main>
-        <Footer />
-        <FloatingContact />
-        <CookieConsent />
-        <BackToTop />
+        <PublicShell>{children}</PublicShell>
       </body>
     </html>
   );

@@ -49,7 +49,9 @@ const projects = [
   },
 ];
 
-export default function ProjectsGrid() {
+interface ProjectsGridProps { content?: Record<string, unknown> }
+
+export default function ProjectsGrid({ content: _content }: ProjectsGridProps = {}) {
   const [active, setActive] = useState("All");
   const filtered = active === "All" ? projects : projects.filter((p) => p.tags.includes(active));
 

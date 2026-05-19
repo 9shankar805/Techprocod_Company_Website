@@ -1,6 +1,9 @@
 import type { Metadata } from "next";
-import BlogHero from "@/components/blog/BlogHero";
-import BlogGrid from "@/components/blog/BlogGrid";
+import { loadPageContentServer } from "@/lib/pageContentServer";
+import { DEFAULT_SECTIONS } from "@/app/admin/page-builder/pageRegistry";
+import { renderSection } from "@/app/admin/page-builder/renderSections";
+
+export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
   title: "Blog | Tech Articles, Tutorials & Digital Insights | Tech Procod Nepal",
@@ -27,11 +30,11 @@ export const metadata: Metadata = {
   },
 };
 
-export default function BlogPage() {
-  return (
-    <>
-      <BlogHero />
-      <BlogGrid />
-    </>
-  );
+export default async function BlogPage() {
+  const raw = await loadPageContentServer("blog");
+  const sections = (raw ?? DEFAULT_SECTIONS["blog"])
+    .filter((s) => s.visible)
+    .sort((a, b) => a.order - b.order);
+
+  return <>{sections.map((s) => renderSection(s))}</>;
 }

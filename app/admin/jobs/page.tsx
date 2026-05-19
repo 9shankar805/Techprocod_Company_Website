@@ -1,11 +1,11 @@
 "use client";
 import AdminShell from "@/components/admin/AdminShell";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Plus, Pencil, Trash2, X, Save, MapPin, Clock } from "lucide-react";
 import { useAdminSession } from "@/hooks/useAdminSession";
 
 type Job = {
-  id: number;
+  id: string;
   title: string;
   type: "Full-time" | "Part-time" | "Internship" | "Contract";
   location: string;
@@ -15,50 +15,62 @@ type Job = {
   status: "Open" | "Closed";
 };
 
-const INITIAL: Job[] = [
-  { id: 1, title: "Full Stack Developer", type: "Full-time", location: "Siraha / Remote", experience: "2+ years", skills: "React, Laravel, MySQL, REST APIs", desc: "Build and maintain web applications for our clients.", status: "Open" },
-  { id: 2, title: "React Native Developer", type: "Full-time", location: "Siraha / Remote", experience: "1+ years", skills: "React Native, JavaScript, Firebase", desc: "Develop cross-platform mobile apps for Android and iOS.", status: "Open" },
-  { id: 3, title: "UI/UX Designer", type: "Full-time", location: "Siraha / Remote", experience: "1+ years", skills: "Figma, Prototyping, User Research", desc: "Design beautiful, user-centered interfaces.", status: "Open" },
-  { id: 4, title: "SEO & Digital Marketing Specialist", type: "Full-time", location: "Siraha", experience: "1+ years", skills: "SEO, Google Analytics, Social Media", desc: "Drive organic growth and digital visibility.", status: "Open" },
-  { id: 5, title: "Web Development Intern", type: "Internship", location: "Siraha", experience: "Fresher", skills: "HTML/CSS, JavaScript, Basic React", desc: "3-month paid internship for web development students.", status: "Open" },
-  { id: 6, title: "Graphic Design Intern", type: "Internship", location: "Siraha / Remote", experience: "Fresher", skills: "Figma, Adobe XD, Canva", desc: "3-month internship for design students.", status: "Closed" },
-];
-
 const EMPTY: Omit<Job, "id"> = { title: "", type: "Full-time", location: "Siraha / Remote", experience: "1+ years", skills: "", desc: "", status: "Open" };
 const TYPES = ["Full-time", "Part-time", "Internship", "Contract"] as const;
 const typeColor: Record<string, { bg: string; text: string }> = {
   "Full-time": { bg: "#eff6ff", text: "#2563eb" },
   "Part-time": { bg: "#f0fdf4", text: "#059669" },
-  Internship: { bg: "#fffbeb", text: "#d97706" },
-  Contract: { bg: "#faf5ff", text: "#7c3aed" },
+  Internship:  { bg: "#fffbeb", text: "#d97706" },
+  Contract:    { bg: "#faf5ff", text: "#7c3aed" },
 };
 
 export default function AdminJobs() {
   const { role, name } = useAdminSession();
-  const [jobs, setJobs] = useState<Job[]>(INITIAL);
+  const [jobs, setJobs] = useState<Job[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
   const [modal, setModal] = useState(false);
   const [editing, setEditing] = useState<Job | null>(null);
   const [form, setForm] = useState<Omit<Job, "id">>(EMPTY);
   const [filter, setFilter] = useState("All");
 
+  useEffect(() => {
+    fetch("/api/admin/jobs").then((r) => r.json()).then((data) => {
+      if (Array.isArray(data)) setJobs(data);
+      setLoading(false);
+    });
+  }, []);
+
   const openAdd = () => { setEditing(null); setForm(EMPTY); setModal(true); };
   const openEdit = (j: Job) => { setEditing(j); setForm({ title: j.title, type: j.type, location: j.location, experience: j.experience, skills: j.skills, desc: j.desc, status: j.status }); setModal(true); };
 
-  const save = () => {
+  const save = async () => {
     if (!form.title.trim()) return;
+    setSaving(true);
     if (editing) {
+      await fetch("/api/admin/jobs", { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ id: editing.id, ...form }) });
       setJobs((prev) => prev.map((j) => j.id === editing.id ? { ...j, ...form } : j));
     } else {
-      setJobs((prev) => [...prev, { id: Date.now(), ...form }]);
+      const res = await fetch("/api/admin/jobs", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(form) });
+      const { id } = await res.json();
+      setJobs((prev) => [{ id, ...form }, ...prev]);
     }
+    setSaving(false);
     setModal(false);
   };
 
-  const remove = (id: number) => setJobs((prev) => prev.filter((j) => j.id !== id));
-  const toggle = (id: number) => setJobs((prev) => prev.map((j) => j.id === id ? { ...j, status: j.status === "Open" ? "Closed" : "Open" } : j));
+  const remove = async (id: string) => {
+    await fetch("/api/admin/jobs", { method: "DELETE", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ id }) });
+    setJobs((prev) => prev.filter((j) => j.id !== id));
+  };
+
+  const toggle = async (j: Job) => {
+    const status = j.status === "Open" ? "Closed" : "Open";
+    await fetch("/api/admin/jobs", { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ id: j.id, status }) });
+    setJobs((prev) => prev.map((x) => x.id === j.id ? { ...x, status } : x));
+  };
 
   const filtered = filter === "All" ? jobs : filter === "Open" || filter === "Closed" ? jobs.filter((j) => j.status === filter) : jobs.filter((j) => j.type === filter);
-
   const openCount = jobs.filter((j) => j.status === "Open").length;
 
   return (
@@ -74,14 +86,14 @@ export default function AdminJobs() {
           </button>
         </div>
 
-        {/* Filters */}
         <div style={{ display: "flex", gap: 8, marginBottom: 20, flexWrap: "wrap" }}>
           {["All", "Open", "Closed", "Full-time", "Internship"].map((s) => (
             <button key={s} onClick={() => setFilter(s)} style={{ padding: "7px 14px", borderRadius: 8, fontSize: 13, fontWeight: 500, border: "1px solid", cursor: "pointer", background: filter === s ? "#111827" : "white", color: filter === s ? "white" : "#374151", borderColor: filter === s ? "#111827" : "#e5e7eb" }}>{s}</button>
           ))}
         </div>
 
-        {/* Job cards */}
+        {loading && <p style={{ color: "#9ca3af", fontSize: 14 }}>Loading...</p>}
+
         <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
           {filtered.map((j) => (
             <div key={j.id} style={{ background: "white", border: "1px solid #e5e7eb", borderRadius: 12, padding: "16px 20px" }}>
@@ -107,7 +119,7 @@ export default function AdminJobs() {
                   <button onClick={() => openEdit(j)} style={{ padding: "7px 12px", borderRadius: 8, border: "1px solid #e5e7eb", background: "white", cursor: "pointer", color: "#374151", display: "flex", alignItems: "center", gap: 5, fontSize: 13 }}>
                     <Pencil size={13} /> Edit
                   </button>
-                  <button onClick={() => toggle(j.id)} style={{ padding: "7px 12px", borderRadius: 8, border: "1px solid #e5e7eb", background: "white", cursor: "pointer", fontSize: 13, color: j.status === "Open" ? "#d97706" : "#059669" }}>
+                  <button onClick={() => toggle(j)} style={{ padding: "7px 12px", borderRadius: 8, border: "1px solid #e5e7eb", background: "white", cursor: "pointer", fontSize: 13, color: j.status === "Open" ? "#d97706" : "#059669" }}>
                     {j.status === "Open" ? "Close" : "Reopen"}
                   </button>
                   <button onClick={() => remove(j.id)} style={{ padding: "7px 10px", borderRadius: 8, border: "1px solid #fee2e2", background: "#fef2f2", cursor: "pointer", color: "#ef4444" }}>
@@ -117,13 +129,12 @@ export default function AdminJobs() {
               </div>
             </div>
           ))}
-          {filtered.length === 0 && (
+          {!loading && filtered.length === 0 && (
             <div style={{ padding: 40, textAlign: "center", color: "#9ca3af", fontSize: 14, background: "white", border: "1px solid #e5e7eb", borderRadius: 12 }}>No job listings found</div>
           )}
         </div>
       </div>
 
-      {/* Modal */}
       {modal && (
         <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.4)", zIndex: 200, display: "flex", alignItems: "center", justifyContent: "center", padding: 16 }}>
           <div style={{ background: "white", borderRadius: 16, padding: 28, width: "100%", maxWidth: 500, maxHeight: "90vh", overflowY: "auto" }}>
@@ -169,8 +180,8 @@ export default function AdminJobs() {
               </div>
               <div style={{ display: "flex", gap: 10, marginTop: 4 }}>
                 <button onClick={() => setModal(false)} className="btn-outline" style={{ flex: 1, justifyContent: "center", fontSize: 13 }}>Cancel</button>
-                <button onClick={save} className="btn-primary" style={{ flex: 1, justifyContent: "center", fontSize: 13 }}>
-                  <Save size={14} /> Save Job
+                <button onClick={save} disabled={saving} className="btn-primary" style={{ flex: 1, justifyContent: "center", fontSize: 13 }}>
+                  <Save size={14} /> {saving ? "Saving..." : "Save Job"}
                 </button>
               </div>
             </div>
