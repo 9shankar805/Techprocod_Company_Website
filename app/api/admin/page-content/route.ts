@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { adminDb } from "@/lib/firebaseAdmin";
 import { getSession } from "@/lib/getSession";
 
+export const dynamic = "force-dynamic";
+
 // GET /api/admin/page-content?page=home  — public, no auth
 export async function GET(req: NextRequest) {
   const page = req.nextUrl.searchParams.get("page") || "home";

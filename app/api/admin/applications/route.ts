@@ -3,6 +3,8 @@ import { adminDb } from "@/lib/firebaseAdmin";
 import { getSession } from "@/lib/getSession";
 import { FieldValue } from "firebase-admin/firestore";
 
+export const dynamic = "force-dynamic";
+
 export async function GET() {
   const session = await getSession();
   if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });

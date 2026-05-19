@@ -203,8 +203,8 @@ export default function AdminDashboardClient({
                   </linearGradient>
                 </defs>
                 <XAxis dataKey="month" tick={{ fontSize: 11 }} axisLine={false} tickLine={false} />
-                <YAxis tick={{ fontSize: 11 }} axisLine={false} tickLine={false} tickFormatter={v => `${(v/1000).toFixed(0)}k`} />
-                <Tooltip formatter={(v: number) => `NPR ${v.toLocaleString()}`} />
+                <YAxis tick={{ fontSize: 11 }} axisLine={false} tickLine={false} tickFormatter={(v: any) => `${(Number(v)/1000).toFixed(0)}k`} />
+                <Tooltip formatter={(v: any) => `NPR ${Number(v).toLocaleString()}`} />
                 <Area type="monotone" dataKey="income" stroke="#059669" strokeWidth={2} fill="url(#incomeGrad)" name="Income" />
                 <Area type="monotone" dataKey="expense" stroke="#ef4444" strokeWidth={2} fill="url(#expenseGrad)" name="Expense" />
               </AreaChart>

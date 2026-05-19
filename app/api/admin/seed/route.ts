@@ -3,6 +3,8 @@ import { adminDb } from '@/lib/firebaseAdmin';
 import { SECTION_DEFINITIONS } from '@/app/admin/page-builder/pageRegistry';
 import { Section } from '@/app/admin/page-builder/types';
 
+export const dynamic = "force-dynamic";
+
 /**
  * Seed Firestore with professional demo data for all pages.
  * Only accessible by an admin session.

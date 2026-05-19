@@ -32,7 +32,9 @@ export default function MessagesPage() {
     const handler = onValue(msgRef, snap => {
       if (!snap.exists()) { setMessages([]); return; }
       const msgs: Message[] = [];
-      snap.forEach(child => msgs.push({ id: child.key!, ...child.val() }));
+      snap.forEach(child => {
+        msgs.push({ id: child.key!, ...child.val() });
+      });
       setMessages(msgs.sort((a, b) => a.timestamp - b.timestamp));
     });
     return () => off(msgRef, "value", handler);

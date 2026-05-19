@@ -5,7 +5,21 @@ import { Globe, Code, Send, ExternalLink } from 'lucide-react';
 import 'swiper/css';
 import 'swiper/css/pagination';
 
-const defaultTeam = [
+interface TeamMember {
+  name: string;
+  role: string;
+  initials: string;
+  bio: string;
+  image?: string;
+  socials?: {
+    linkedin?: string;
+    twitter?: string;
+    github?: string;
+    website?: string;
+  };
+}
+
+const defaultTeam: TeamMember[] = [
   { 
     name: "Founder / CEO", 
     role: "Full Stack Developer & Visionary", 
@@ -45,20 +59,6 @@ const defaults = {
   heading: "Meet the People",
   subheading: "Builders, designers, and strategists working together to create great products.",
 };
-
-interface TeamMember {
-  name: string;
-  role: string;
-  initials: string;
-  bio: string;
-  image?: string;
-  socials?: {
-    linkedin?: string;
-    twitter?: string;
-    github?: string;
-    website?: string;
-  };
-}
 
 interface TeamSectionProps {
   badge?: string;
