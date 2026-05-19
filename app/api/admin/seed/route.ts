@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { dbAdmin } from '@/lib/firebaseAdmin';
+import { adminDb } from '@/lib/firebaseAdmin';
 import { SECTION_DEFINITIONS } from '@/app/admin/page-builder/pageRegistry';
 import { Section } from '@/app/admin/page-builder/types';
 
@@ -49,7 +49,7 @@ export async function POST(request: Request) {
       }
     ];
 
-    const batch = dbAdmin.batch();
+    const batch = adminDb.batch();
 
     for (const page of pages) {
       const sections: Section[] = page.sections.map((type, index) => {
@@ -63,7 +63,7 @@ export async function POST(request: Request) {
         };
       });
 
-      const ref = dbAdmin.collection('pageContent').doc(page.id);
+      const ref = adminDb.collection('pageContent').doc(page.id);
       batch.set(ref, { sections, updatedAt: new Date().toISOString() });
     }
 
